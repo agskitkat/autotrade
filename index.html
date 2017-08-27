@@ -1,0 +1,167 @@
+<html ng-app="app">
+  <head>
+	<meta charset="utf-8">
+    <title>TradeSystem {{ config.apikey }}</title>
+	<link rel="stylesheet" href="css/uikit.min.css">
+	<link rel="stylesheet" href="css/jui.css">
+	<script src="angular.js"></script>
+	<script src="jquery.js"></script>
+	<script src="jui.js"></script>
+	<script src="js/uikit.min.js"></script>
+	<script src="main.js"></script>
+	<style>
+		.all-tasks .task {
+			width:25%;
+			float:left;
+		}
+		
+		.all-tasks .task .task-warp {
+			position:relative;
+			padding:6px;
+			margin:6px;
+			border:1px solid #AAA;
+		}
+		
+		.ui-widget.ui-widget-content {
+			z-index: 1020;
+		}
+		
+		.buy {
+			text-transform:uppercase;
+			color:#00DD00;
+		}
+		.sell {
+			text-transform:uppercase;
+			color:#DD0000;
+		}
+		
+		.spinner {
+		  width: 40px;
+		  height: 40px;
+		  margin: 0px auto;
+		  background-color: #333;
+		  border-radius: 100%;  
+		  -webkit-animation: sk-scaleout 1.0s infinite ease-in-out;
+		  animation: sk-scaleout 1.0s infinite ease-in-out;
+		  position:absolute;
+		  right:0;
+		  top:0;
+		}
+		
+		.spinner.false {
+			display:none;
+		}
+		
+		.spinner.sell {
+			background-color: #DD0000;
+		}
+		
+		.spinner.buy {
+			background-color: #00DD00;
+		}
+
+		@-webkit-keyframes sk-scaleout {
+		  0% { -webkit-transform: scale(0) }
+		  100% {
+			-webkit-transform: scale(1.0);
+			opacity: 0;
+		  }
+		}
+
+		@keyframes sk-scaleout {
+		  0% { 
+			-webkit-transform: scale(0);
+			transform: scale(0);
+		  } 100% {
+			-webkit-transform: scale(1.0);
+			transform: scale(1.0);
+			opacity: 0;
+		  }
+		}
+		
+		.more {
+			font-size:12px;
+			color:#999;
+			}
+	</style>
+  </head>
+  <body ng-controller="TasksController">
+  
+	<nav class="uk-navbar">
+		<ul class="uk-navbar-nav">
+			<li><a href="#my-add-task" data-uk-modal>Добавить</a></li>
+			<li><a href="#my-id" data-uk-modal>Настройка</a></li>
+		</ul>
+	</nav>
+	
+	<div id="my-id" class="uk-modal">
+		<div class="uk-modal-dialog">
+			<a class="uk-modal-close uk-close"></a>
+			<div class="uk-form">
+				<fieldset>
+					<legend>API</legend>
+					<div class="uk-form-row">
+						<input placeholder="API KEY" ng-model="apikey">
+					</div>
+					<div class="uk-form-row">
+						<input placeholder="Secret" type="password" ng-model="secret">
+					</div>
+					<div class="uk-form-row">
+						<button class="uk-button" ng-click="saveConfig()">Save</button>
+					</div>
+				</fieldset>
+			</div>
+		</div>
+	</div>
+	
+	<div id="my-add-task" class="uk-modal">
+		<div class="uk-modal-dialog">
+			<a class="uk-modal-close uk-close"></a>
+			<div class="uk-form">
+				<fieldset>
+					<legend>Add task</legend>
+					<div class="uk-form-row uk-autocomplete uk-form">
+						<input id="tags" placeholder="Pair" type="text" ng-model="newTask.pair" ng-change="whatYouHave(newTask.pair)"><br><span class="more"> {{ youHave }}</span>
+						<script>
+						$( "#tags" ).autocomplete({
+						   source: ["BTC_AMP","BTC_ARDR","BTC_BCH","BTC_BCN","BTC_BCY","BTC_BELA","BTC_BLK","BTC_BTCD","BTC_BTM","BTC_BTS","BTC_BURST","BTC_CLAM","BTC_DASH","BTC_DCR","BTC_DGB","BTC_DOGE","BTC_EMC2","BTC_ETC","BTC_ETH","BTC_EXP","BTC_FCT","BTC_FLDC","BTC_FLO","BTC_GAME","BTC_GNO","BTC_GNT","BTC_GRC","BTC_HUC","BTC_LBC","BTC_LSK","BTC_LTC","BTC_MAID","BTC_NAUT","BTC_NAV","BTC_NEOS","BTC_NMC","BTC_NOTE","BTC_NXC","BTC_NXT","BTC_OMNI","BTC_PASC","BTC_PINK","BTC_POT","BTC_PPC","BTC_RADS","BTC_REP","BTC_RIC","BTC_SBD","BTC_SC","BTC_SJCX","BTC_STEEM","BTC_STR","BTC_STRAT","BTC_SYS","BTC_VIA","BTC_VRC","BTC_VTC","BTC_XBC","BTC_XCP","BTC_XEM","BTC_XMR","BTC_XPM","BTC_XRP","BTC_XVC","BTC_ZEC","ETH_BCH","ETH_ETC","ETH_GNO","ETH_GNT","ETH_LSK","ETH_REP","ETH_STEEM","ETH_ZEC","USDT_BCH","USDT_BTC","USDT_DASH","USDT_ETC","USDT_ETH","USDT_LTC","USDT_NXT","USDT_REP","USDT_STR","USDT_XMR","USDT_XRP","USDT_ZEC","XMR_BCN","XMR_BLK","XMR_BTCD","XMR_DASH","XMR_LTC","XMR_MAID","XMR_NXT","XMR_ZEC"]
+						});
+						</script>
+					</div>
+					<div class="uk-form-row">
+						<input placeholder="Limit" type="number" ng-model="newTask.limit">
+					</div>
+					<div class="uk-form-row">
+						<input placeholder="Price" type="number" ng-model="newTask.price"><br><span class="more"> {{ lastPrice }}</span>
+					</div>
+					<div class="uk-form-row">
+						<input placeholder="Amount" type="number" ng-model="newTask.amount">
+					</div>
+					<div class="uk-form-row">
+						<canvas></canvas>
+					</div>
+					<div class="uk-form-row">
+						<button class="uk-button" ng-click="addTask('buy')">Buy</button>
+						<button class="uk-button" ng-click="addTask('sell')">Sell</button>
+					</div>
+				</fieldset>
+			</div>
+		</div>
+	</div>
+	
+	<div class="all-tasks">
+		<div class="task" ng-repeat="task in tasks">
+			<div class="task-warp">
+				<h3><b class="{{ task.type }}">{{ task.type }}</b> {{ task.pair }} <div class="spinner {{ task.type }} {{ task.isTrade }}"></div></h3>
+				<ul class="uk-list uk-list-line">
+					<li>Limit: {{ task.limit }}</li>
+					<li>Price: {{ task.price }}</li>
+					<li>Amount: {{ task.amount }}</li>
+					<li>Last: {{ task.lastPrice }}</li>
+				</ul>
+				<button class="uk-button" ng-click="removeTask($index)">Remove</button>
+			</div>
+		</div>
+	</div>
+  </body>
+</html>

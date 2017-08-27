@@ -1,0 +1,13 @@
+{
+  "name": "DoubleLimit",
+  "version": "1.0.0",
+  "main": "index.html",
+  "window": {
+    "toolbar": true,
+    "width": 960,
+    "height": 600
+  },
+  "dependencies": {
+    "jsonfile": "^3.0.1"
+  }
+}
